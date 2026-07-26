@@ -61,37 +61,41 @@ Now let's go **pin-to-pin** through every step.
 
 Before building any business feature, establish the application structure.
 
+For this project, **Next.js is the full-stack application boundary**. We do not create a separate Express/Nest/Node backend at this stage.
+
 We should be able to run:
 
 ```text
-Frontend
-Backend
-Database
+Next.js application
+PostgreSQL database
 ```
 
-independently and together.
+together, with the application containing the UI, Route Handlers, Server Components, Server Actions where appropriate, application services, repositories, validation, and business modules.
 
 ---
 
-## 1.1 Define the applications
+## 1.1 Define the application
 
 We will eventually have:
 
 ```text
 ecommerce/
 │
-├── frontend/
+├── src/
+│   ├── app/                 # Next.js UI + Route Handlers
+│   ├── modules/             # Business modules
+│   ├── components/          # Functional React UI
+│   ├── lib/                 # Shared technical infrastructure
+│   └── composition-root.ts  # Dependency wiring
 │
-├── backend/
-│
-├── database/
-│
-├── docs/
-│
+├── prisma/                  # PostgreSQL schema + migrations
+├── docs/                    # Contracts, ADRs, engineering standards
+├── tests/
+├── scripts/
 └── infrastructure/
 ```
 
-We should keep these responsibilities separate.
+The application is a **modular monolith**. Business modules have explicit boundaries so that a module can later be extracted into a separate service if real business needs justify it.
 
 ---
 
@@ -121,25 +125,33 @@ Secrets must never be committed to source control.
 
 ---
 
-## 1.3 Backend foundation
+## 1.3 Next.js full-stack foundation
+
+Use Next.js's native full-stack capabilities first.
 
 Establish:
 
 * Application startup
 * Configuration loading
-* Database connection
+* PostgreSQL connection through Prisma
+* Route Handlers
+* Server Components
+* Server Actions only where they improve the server-side application flow
 * Request handling
 * Response format
 * Error handling
 * Logging
 * API versioning
 * Health check
+* Composition root / dependency wiring
 
 For example:
 
 ```text
 /api/v1/...
 ```
+
+Do **not** introduce a separate backend framework or service unless a later business or operational requirement actually justifies it.
 
 ---
 
@@ -178,16 +190,22 @@ We should not let every module invent its own error format.
 
 ---
 
-## 1.6 Database foundation
+## 1.6 PostgreSQL + Prisma foundation
 
 Set up:
 
-* Database
-* Connection
+* PostgreSQL database
+* Prisma ORM
+* Prisma schema
+* Database connection
 * Migration system
 * Seed mechanism
 * Development database
 * Test database
+
+The database is relational and should model the business relationships explicitly.
+
+The application should not spread Prisma calls throughout business logic. Database access belongs behind repository classes and module contracts.
 
 ---
 
@@ -227,22 +245,170 @@ possible errors
 
 ---
 
+## 1.9 Contracts-first design
+
+Before implementing a module, define its contracts first.
+
+For each feature, establish:
+
+```text
+Use case
+    ↓
+Input DTO
+    ↓
+Output DTO
+    ↓
+Application contract
+    ↓
+Repository contract
+    ↓
+Business rules
+    ↓
+Implementation
+```
+
+The implementation must satisfy the contract; the contract should not be rewritten simply to fit an implementation.
+
+Contracts should be designed so that the UI, Route Handlers, services, and repositories do not depend on Prisma-specific types.
+
+---
+
+## 1.10 DTOs
+
+Every external application boundary should use explicit DTOs.
+
+Examples:
+
+```text
+CreateProductDto
+UpdateProductDto
+ProductResponseDto
+
+CreateOrderDto
+OrderResponseDto
+
+AcceptVendorOrderDto
+VendorOrderResponseDto
+```
+
+DTOs are the transport/application boundary. They are not the Prisma database models.
+
+---
+
+## 1.11 ADRs
+
+Record important architectural decisions as Architecture Decision Records.
+
+Initial ADR topics:
+
+```text
+ADR-001 Next.js native full-stack application
+ADR-002 PostgreSQL with Prisma
+ADR-003 Modular monolith boundaries
+ADR-004 Hybrid TypeScript style
+ADR-005 Contracts-first development
+ADR-006 Composition root and dependency wiring
+```
+
+---
+
+## 1.12 Engineering standards
+
+Create project-wide engineering standards covering:
+
+```text
+TypeScript conventions
+Functional React/UI rules
+Class-based service/repository rules
+Module boundary rules
+DTO rules
+Validation rules
+Error handling
+Naming
+Testing
+Logging
+Database access
+Dependency direction
+Git conventions
+```
+
+These standards are part of the project foundation, not an afterthought.
+
+---
+
+## 1.13 Composition root
+
+Create one composition root responsible for wiring application dependencies.
+
+Conceptually:
+
+```text
+Composition Root
+      │
+      ├── Prisma client
+      ├── Repository implementations
+      ├── Service classes
+      └── Module dependencies
+```
+
+Route Handlers, Server Components, and Server Actions should consume already-wired application capabilities rather than constructing repositories and services independently.
+
+---
+
+## 1.14 Hybrid TypeScript style
+
+Use a deliberate hybrid style:
+
+```text
+React / Next.js UI
+        ↓
+Functional components
+Functional hooks
+Functional framework code
+```
+
+and:
+
+```text
+Application services
+        ↓
+Classes
+
+Repositories
+        ↓
+Classes
+```
+
+Services and repositories should receive dependencies through constructors rather than creating their own infrastructure internally.
+
+This gives us the requested combination of idiomatic React/Next.js code and explicit object-oriented business/infrastructure services.
+
+---
+
 ## Step 1 completion criteria
 
 We finish Step 1 only when:
 
-* Frontend runs
-* Backend runs
-* Database runs
-* Backend connects to DB
+* Next.js application runs
+* PostgreSQL runs
+* Prisma connects to PostgreSQL
 * API responds
 * Health endpoint works
 * Error handling works
 * Logging works
 * Environment configuration works
 * Database migrations work
+* Contract definitions exist before their implementations
+* DTO conventions are established
+* ADR structure exists
+* Engineering standards are documented
+* Composition root wires the initial dependencies
+* Module boundaries are documented
+* Functional UI/framework and class-based service/repository conventions are established
 
 **No e-commerce functionality yet.**
+
+The goal of Step 1 is not only infrastructure. It establishes the rules under which every later module will be implemented.
 
 ---
 
@@ -2802,6 +2968,12 @@ Payment flow
 Shipping flow
 Deployment
 Environment configuration
+Contracts
+DTOs
+ADRs
+Engineering standards
+Module boundaries
+Composition root
 ```
 
 ---
@@ -2965,6 +3137,8 @@ Later.
 
 Not initially.
 
+The first version is a **modular monolith with clean module boundaries**. We only extract a module into a separate service when real business needs justify the operational and architectural cost.
+
 ---
 
 # One Important Architectural Rule
@@ -3004,6 +3178,28 @@ Admin
 ```
 
 we're adding a new actor—not rewriting the system.
+
+---
+
+# Modular Monolith Boundary Rule
+
+The application is one deployable Next.js system, but it is **not one undifferentiated codebase**.
+
+Each business module owns:
+
+```text
+Domain rules
+Application use cases
+DTOs
+Contracts
+Repository abstractions
+Infrastructure implementations
+Public module API
+```
+
+Other modules must depend on a module's public contract/API rather than reaching into its internal files.
+
+This is what makes future extraction possible without designing microservices prematurely.
 
 ---
 
@@ -3106,6 +3302,21 @@ Everything else we add later should plug into this rather than corrupting it.
 
 For the actual development, I recommend that we treat these 18 steps as our **master roadmap**.
 
+The architectural rules for every step are:
+
+```text
+Contracts first
+DTOs at boundaries
+Functional UI/framework code
+Class-based services
+Class-based repositories
+Explicit module boundaries
+Next.js native full-stack capabilities first
+PostgreSQL + Prisma behind repositories
+Composition root for dependency wiring
+No premature microservices
+```
+
 We will work like this:
 
 ```text
@@ -3124,12 +3335,20 @@ Only then
 STEP 2
 ```
 
-And for **each step**, before writing code, we will go one level deeper and define:
+And for **each step**, before writing code, we will go one level deeper and define the contracts first:
 
 ```text
-Module
+Module boundary
     ↓
-Submodules
+Use cases
+    ↓
+Input DTOs
+    ↓
+Output DTOs
+    ↓
+Application contracts
+    ↓
+Repository contracts
     ↓
 Entities
     ↓
@@ -3159,7 +3378,11 @@ State management
     ↓
 Tests
     ↓
+Implementation
+    ↓
 Completion criteria
 ```
+
+The implementation comes **after the contracts**. The UI remains functional/framework-oriented, while services and repositories are implemented as classes behind those contracts.
 
 
