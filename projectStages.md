@@ -463,7 +463,7 @@ Don't physically delete users casually.
 
 ---
 
-# 2.3 Roles
+# 2.3 Roles & Multi-Role Identity
 
 Create:
 
@@ -472,15 +472,8 @@ CUSTOMER
 VENDOR
 ```
 
-Keep role handling generic so we can add:
-
-```text
-ADMIN
-SUPPORT
-WAREHOUSE
-```
-
-later.
+A single `User` identity can possess multiple role memberships (`roles: UserRole[]`).
+For example, a user registered with `email = user@example.com` can hold both `CUSTOMER` and `VENDOR` roles on one account.
 
 ---
 
@@ -498,29 +491,40 @@ Vendor:
 POST /auth/vendor/register
 ```
 
-Registration should validate:
+Registration rules:
+* New email → Creates user identity with the requested role.
+* Duplicate email with same role → Returns `409 Conflict`.
+* Duplicate email with opposite role → Verifies existing password before adding the new role to `user.roles`.
 
+Registration validates:
 * Email
 * Phone
 * Password
 * Required fields
-* Duplicate account
-* Password strength
+* Password strength & existing account verification
 
 ---
 
-# 2.5 Login
+# 2.5 Login & Two-Phase Role Selection
 
 Implement:
 
 ```text
-Login
+POST /auth/login
+POST /auth/select-role
 Logout
 Access token
 Refresh token
 ```
 
-The exact authentication mechanism will be chosen when we select the technology stack.
+Login Flow:
+1. **Phase 1 (`POST /auth/login`)**: Takes `email` + `password`.
+   * **Single Role Account**: Immediately logs in and returns access/refresh tokens for that role.
+   * **Dual Role Account (`CUSTOMER` + `VENDOR`)**: Returns `requiresRoleSelection: true`, `availableRoles: ["CUSTOMER", "VENDOR"]`, and a short-lived (5 min), single-purpose `selectionToken`.
+2. **Phase 2 (`POST /auth/select-role`)**: Takes `selectionToken` + `role`.
+   * Validates `selectionToken`.
+   * Verifies account possesses the requested `role`.
+   * Issues final role-bound access token and refresh token.
 
 ---
 

@@ -186,6 +186,13 @@ ecommerce-platform/
 │   │   │
 │   │   ├── api/v1/
 │   │   │   ├── auth/
+│   │   │   │   ├── register/
+│   │   │   │   ├── vendor/register/
+│   │   │   │   ├── login/
+│   │   │   │   ├── select-role/
+│   │   │   │   ├── logout/
+│   │   │   │   ├── refresh/
+│   │   │   │   └── me/
 │   │   │   ├── customers/
 │   │   │   ├── vendors/
 │   │   │   ├── products/

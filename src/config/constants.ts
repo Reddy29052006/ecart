@@ -1,0 +1,21 @@
+export const APP_CONSTANTS = {
+  NAME: 'E-Cart Modular Monolith Engine',
+  API_VERSION: 'v1',
+  DEFAULT_PAGE_SIZE: 20,
+  MAX_PAGE_SIZE: 100,
+  CURRENCY: 'USD',
+  USER_ROLES: {
+    CUSTOMER: 'CUSTOMER',
+    VENDOR: 'VENDOR',
+  },
+  USER_STATUS: {
+    ACTIVE: 'ACTIVE',
+    INACTIVE: 'INACTIVE',
+    SUSPENDED: 'SUSPENDED',
+  },
+  VENDOR_STATUS: {
+    PENDING: 'PENDING',
+    ACTIVE: 'ACTIVE',
+    SUSPENDED: 'SUSPENDED',
+  },
+} as const;
