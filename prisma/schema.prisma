@@ -7,9 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─────────────────────────────────────────
 // Stage 2 — Identity & Authentication
-// ─────────────────────────────────────────
 
 enum UserRole {
   CUSTOMER
@@ -53,9 +51,7 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
-// ─────────────────────────────────────────
 // Stage 3 — Customer & Vendor Profiles
-// ─────────────────────────────────────────
 
 model CustomerProfile {
   id           String  @id @default(cuid())
@@ -113,9 +109,7 @@ model VendorProfile {
   @@map("vendor_profiles")
 }
 
-// ─────────────────────────────────────────
 // Stage 4 — Vendor Product Management
-// ─────────────────────────────────────────
 
 enum CategoryStatus {
   ACTIVE
@@ -163,7 +157,8 @@ model Product {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
-  images ProductImage[]
+  images   ProductImage[]
+  variants ProductVariant[]
 
   @@map("products")
 }
@@ -180,3 +175,70 @@ model ProductImage {
   @@map("product_images")
 }
 
+// Stage 6 — Product Variants & Inventory
+
+enum VariantStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model ProductVariant {
+  id                String        @id @default(cuid())
+  productId         String
+  product           Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku               String        @unique
+  price             Float
+  status            VariantStatus @default(ACTIVE)
+  lowStockThreshold Int           @default(5)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  attributes VariantAttribute[]
+  inventory  Inventory?
+  movements  InventoryMovement[]
+
+  @@map("product_variants")
+}
+
+model VariantAttribute {
+  id        String         @id @default(cuid())
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  name      String
+  value     String
+
+  @@map("variant_attributes")
+}
+
+model Inventory {
+  id                String         @id @default(cuid())
+  variantId         String         @unique
+  variant           ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  availableQuantity Int            @default(0)
+  reservedQuantity  Int            @default(0)
+  updatedAt         DateTime       @updatedAt
+
+  @@map("inventory")
+}
+
+enum MovementType {
+  STOCK_IN
+  STOCK_OUT
+  RESERVED
+  RELEASED
+  ADJUSTMENT
+}
+
+model InventoryMovement {
+  id            String         @id @default(cuid())
+  variantId     String
+  variant       ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  type          MovementType
+  quantity      Int
+  referenceType String?
+  referenceId   String?
+  note          String?
+  createdAt     DateTime       @default(now())
+
+  @@map("inventory_movements")
+}

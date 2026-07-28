@@ -6,6 +6,8 @@ import { NotFoundError, ForbiddenError, ConflictError } from '@/lib/errors/app-e
 import { logger } from '@/lib/logger/logger';
 import { generateSlug } from '@/lib/utils/slug';
 
+import type { ProductQueryDto, PaginatedProductsResult } from './catalog.dto';
+
 export class ProductService implements IProductService {
   constructor(
     private readonly productRepository: IProductRepository,
@@ -25,6 +27,21 @@ export class ProductService implements IProductService {
       throw new ForbiddenError('You do not have permission to access this product');
     }
     return product;
+  }
+
+  async getPublicProducts(query: ProductQueryDto): Promise<PaginatedProductsResult> {
+    return this.productRepository.findPublicProducts(query);
+  }
+
+  async getPublicProductDetails(slugOrId: string): Promise<ProductEntity & { inStock: boolean }> {
+    const product = await this.productRepository.findPublicProductBySlugOrId(slugOrId);
+    if (!product) {
+      throw new NotFoundError('Product not found or currently unavailable');
+    }
+    return {
+      ...product,
+      inStock: product.stock > 0,
+    };
   }
 
   async createProduct(vendorId: string, dto: CreateProductDto): Promise<ProductEntity> {

@@ -12,6 +12,8 @@ import { CategoryRepository } from '@/modules/catalog/category.repository';
 import { CategoryService } from '@/modules/catalog/category.service';
 import { ProductRepository } from '@/modules/catalog/product.repository';
 import { ProductService } from '@/modules/catalog/product.service';
+import { InventoryRepository } from '@/modules/inventory/inventory.repository';
+import { InventoryService } from '@/modules/inventory/inventory.service';
 
 // Main dependency injection container that hooks up all repositories and services across modules
 export class CompositionRoot {
@@ -28,6 +30,8 @@ export class CompositionRoot {
   public readonly categoryService: CategoryService;
   public readonly productRepository: ProductRepository;
   public readonly productService: ProductService;
+  public readonly inventoryRepository: InventoryRepository;
+  public readonly inventoryService: InventoryService;
 
   private constructor() {
     // Shared authentication & token helpers
@@ -50,6 +54,10 @@ export class CompositionRoot {
     this.categoryService = new CategoryService(this.categoryRepository);
     this.productRepository = new ProductRepository(prisma);
     this.productService = new ProductService(this.productRepository, this.categoryRepository);
+
+    // Variant & inventory tracking
+    this.inventoryRepository = new InventoryRepository(prisma);
+    this.inventoryService = new InventoryService(this.inventoryRepository, this.productRepository);
 
     logger.info('Dependency container initialized successfully.');
   }
