@@ -16,6 +16,8 @@ import { InventoryRepository } from '@/modules/inventory/inventory.repository';
 import { InventoryService } from '@/modules/inventory/inventory.service';
 import { CartRepository, CartService } from '@/modules/cart';
 import { CheckoutService } from '@/modules/checkout';
+import { OrderRepository, OrderService } from '@/modules/order';
+import { VendorOrderRepository, VendorOrderService } from '@/modules/vendor-order';
 
 // Main dependency injection container that hooks up all repositories and services across modules
 export class CompositionRoot {
@@ -37,6 +39,10 @@ export class CompositionRoot {
   public readonly cartRepository: CartRepository;
   public readonly cartService: CartService;
   public readonly checkoutService: CheckoutService;
+  public readonly orderRepository: OrderRepository;
+  public readonly orderService: OrderService;
+  public readonly vendorOrderRepository: VendorOrderRepository;
+  public readonly vendorOrderService: VendorOrderService;
 
   private constructor() {
     // Shared authentication & token helpers
@@ -70,6 +76,14 @@ export class CompositionRoot {
 
     // Checkout validation & order preview
     this.checkoutService = new CheckoutService(this.cartRepository, this.customerRepository);
+
+    // Order creation & management
+    this.orderRepository = new OrderRepository(prisma);
+    this.orderService = new OrderService(this.orderRepository, this.cartRepository, this.customerRepository);
+
+    // Vendor order inbox & state management
+    this.vendorOrderRepository = new VendorOrderRepository(prisma);
+    this.vendorOrderService = new VendorOrderService(this.vendorOrderRepository, this.vendorRepository);
 
     logger.info('Dependency container initialized successfully.');
   }

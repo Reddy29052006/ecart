@@ -13,6 +13,7 @@ export function handleApiError(error: unknown): NextResponse {
   }
 
   if (error instanceof Error) {
+    console.error('[UnhandledError]', error);
     logger.error(`[UnhandledError] ${error.message}`, {
       stack: error.stack,
     });
