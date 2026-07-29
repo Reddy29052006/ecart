@@ -3,7 +3,7 @@ import { container } from '@/composition-root';
 import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
-import { productQuerySchema } from '@/modules/catalog/catalog.validation';
+import { productQuerySchema } from '@/modules/catalog';
 
 // Public endpoint to search, filter, sort, and paginate active store products
 export async function GET(request: NextRequest): Promise<NextResponse> {

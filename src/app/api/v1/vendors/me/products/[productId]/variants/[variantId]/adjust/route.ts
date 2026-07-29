@@ -4,7 +4,7 @@ import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
 import { requireRole } from '@/lib/auth/permissions';
-import { adjustStockSchema } from '@/modules/inventory/inventory.validation';
+import { adjustStockSchema } from '@/modules/inventory';
 
 // Correct stock levels with a positive or negative adjustment (creates an ADJUSTMENT movement record)
 export async function POST(

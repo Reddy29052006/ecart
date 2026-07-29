@@ -1,6 +1,5 @@
-// ─────────────────────────────────────────────────────────────
+
 // Customer Module — DTOs (Data Transfer Objects)
-// ─────────────────────────────────────────────────────────────
 
 export interface UpdateCustomerProfileDto {
   firstName?: string;

@@ -4,7 +4,7 @@ import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
 import { requireRole } from '@/lib/auth/permissions';
-import { updateVariantSchema } from '@/modules/inventory/inventory.validation';
+import { updateVariantSchema } from '@/modules/inventory';
 
 type RouteParams = { params: Promise<{ productId: string; variantId: string }> };
 

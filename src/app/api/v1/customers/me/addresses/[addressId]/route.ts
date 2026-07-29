@@ -3,8 +3,8 @@ import { container } from '@/composition-root';
 import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
-import { requireAuth, requireRole } from '@/lib/auth/permissions';
-import { updateAddressSchema } from '@/modules/customer/customer.validation';
+import { requireRole } from '@/lib/auth/permissions';
+import { updateAddressSchema } from '@/modules/customer';
 
 // PUT /api/v1/customers/me/addresses/[addressId] — Update address
 export async function PUT(

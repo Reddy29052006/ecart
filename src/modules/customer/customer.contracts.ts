@@ -5,7 +5,7 @@ import type {
   UpdateAddressDto,
 } from './customer.dto';
 
-// ── Customer Repository Contract ─────────────────────────────
+//  Customer Repository Contract 
 
 export interface ICustomerRepository {
   findProfileByUserId(userId: string): Promise<CustomerProfileEntity | null>;
@@ -18,7 +18,7 @@ export interface ICustomerRepository {
   setDefaultAddress(addressId: string, userId: string): Promise<AddressEntity>;
 }
 
-// ── Customer Service Contract ────────────────────────────────
+//  Customer Service Contract 
 
 export interface ICustomerService {
   getProfile(userId: string): Promise<CustomerProfileEntity>;

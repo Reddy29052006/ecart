@@ -4,9 +4,7 @@ import type { ITokenService } from '@/modules/auth/auth.contracts';
 import type { TokenPair } from '@/modules/auth/auth.types';
 import { UnauthorizedError } from '@/lib/errors/app-error';
 
-// ─────────────────────────────────────────────────────────────
 // Token Service — JWT access + refresh token operations
-// ─────────────────────────────────────────────────────────────
 
 export class TokenService implements ITokenService {
   private readonly accessSecret: Uint8Array;

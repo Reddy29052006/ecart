@@ -1,8 +1,6 @@
 import { z } from 'zod';
 
-// ─────────────────────────────────────────────────────────────
 // Auth Module — Zod Validation Schemas
-// ─────────────────────────────────────────────────────────────
 
 const passwordSchema = z
   .string()

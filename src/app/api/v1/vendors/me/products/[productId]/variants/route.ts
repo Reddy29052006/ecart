@@ -4,7 +4,7 @@ import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
 import { requireRole } from '@/lib/auth/permissions';
-import { createVariantSchema } from '@/modules/inventory/inventory.validation';
+import { createVariantSchema } from '@/modules/inventory';
 
 // List all variants (with inventory levels) for a specific product
 export async function GET(

@@ -3,8 +3,8 @@ import { container } from '@/composition-root';
 import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
-import { requireAuth, requireRole } from '@/lib/auth/permissions';
-import { createAddressSchema } from '@/modules/customer/customer.validation';
+import { requireRole } from '@/lib/auth/permissions';
+import { createAddressSchema } from '@/modules/customer';
 
 // GET /api/v1/customers/me/addresses — List addresses
 export async function GET(request: NextRequest): Promise<NextResponse> {

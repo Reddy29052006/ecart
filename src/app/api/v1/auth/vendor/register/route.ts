@@ -3,11 +3,13 @@ import { container } from '@/composition-root';
 import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
-import { registerVendorSchema } from '@/modules/auth/auth.validation';
+import { registerVendorSchema } from '@/modules/auth';
+import { rateLimiter } from '@/lib/auth/rate-limiter';
 
 // POST /api/v1/auth/vendor/register — Vendor registration
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    rateLimiter.check(request);
     const body = await request.json();
     const result = registerVendorSchema.safeParse(body);
 

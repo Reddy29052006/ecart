@@ -1,7 +1,5 @@
-// ─────────────────────────────────────────────────────────────
 // Auth Module — DTOs (Data Transfer Objects)
 // These are the shapes at API boundaries — NOT Prisma models.
-// ─────────────────────────────────────────────────────────────
 
 export interface RegisterCustomerDto {
   email: string;

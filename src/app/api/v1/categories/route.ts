@@ -3,7 +3,7 @@ import { container } from '@/composition-root';
 import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
-import { createCategorySchema } from '@/modules/catalog/category.validation';
+import { createCategorySchema } from '@/modules/catalog';
 
 // GET /api/v1/categories — Public category listing
 export async function GET(): Promise<NextResponse> {

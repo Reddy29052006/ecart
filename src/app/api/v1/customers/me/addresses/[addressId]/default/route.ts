@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { container } from '@/composition-root';
 import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
-import { requireAuth, requireRole } from '@/lib/auth/permissions';
+import { requireRole } from '@/lib/auth/permissions';
 
 // PATCH /api/v1/customers/me/addresses/[addressId]/default — Set default address
 export async function PATCH(

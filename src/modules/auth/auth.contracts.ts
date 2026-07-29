@@ -1,8 +1,6 @@
-// ─────────────────────────────────────────────────────────────
 // Auth Module — Contracts (Interfaces)
 // These define what the module NEEDS and PROVIDES.
 // Implementations must satisfy these contracts.
-// ─────────────────────────────────────────────────────────────
 
 import type { AuthUser, TokenPair } from './auth.types';
 import type {
@@ -14,7 +12,7 @@ import type {
   TokenResponseDto,
 } from './auth.dto';
 
-// ── Repository Contract ──────────────────────────────────────
+//  Repository Contract 
 
 export interface IAuthRepository {
   findUserByEmail(email: string): Promise<AuthUser & { passwordHash: string } | null>;
@@ -32,7 +30,7 @@ export interface IAuthRepository {
   deleteAllRefreshTokens(userId: string): Promise<void>;
 }
 
-// ── Service Contract ─────────────────────────────────────────
+//  Service Contract 
 
 export interface IAuthService {
   registerCustomer(dto: RegisterCustomerDto): Promise<AuthResponseDto>;
@@ -44,7 +42,7 @@ export interface IAuthService {
   verifyAccessToken(token: string): Promise<{ userId: string; role: string }>;
 }
 
-// ── Token Service Contract ───────────────────────────────────
+//  Token Service Contract 
 
 export interface ITokenService {
   generateTokenPair(userId: string, email: string, role: string): Promise<TokenPair>;

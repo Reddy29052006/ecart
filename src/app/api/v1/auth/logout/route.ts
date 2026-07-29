@@ -3,7 +3,7 @@ import { container } from '@/composition-root';
 import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
-import { refreshTokenSchema } from '@/modules/auth/auth.validation';
+import { refreshTokenSchema } from '@/modules/auth';
 
 // POST /api/v1/auth/logout — Invalidate refresh token
 export async function POST(request: NextRequest): Promise<NextResponse> {

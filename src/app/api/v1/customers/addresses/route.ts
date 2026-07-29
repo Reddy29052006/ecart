@@ -4,7 +4,7 @@ import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
 import { requireRole } from '@/lib/auth/permissions';
-import { createAddressSchema } from '@/modules/customer/customer.validation';
+import { createAddressSchema } from '@/modules/customer';
 
 // GET /api/v1/customers/addresses
 export async function GET(request: NextRequest): Promise<NextResponse> {

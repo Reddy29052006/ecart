@@ -1,6 +1,4 @@
-// ─────────────────────────────────────────────────────────────
 // Vendor Module — Domain Types & Interfaces
-// ─────────────────────────────────────────────────────────────
 
 export type VendorStatusType = 'PENDING' | 'ACTIVE' | 'SUSPENDED';
 

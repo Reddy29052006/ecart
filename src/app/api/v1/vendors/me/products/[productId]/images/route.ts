@@ -4,7 +4,7 @@ import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
 import { requireRole } from '@/lib/auth/permissions';
-import { addProductImageSchema } from '@/modules/catalog/product.validation';
+import { addProductImageSchema } from '@/modules/catalog';
 
 // POST /api/v1/vendors/me/products/[productId]/images — Add image to product gallery
 export async function POST(

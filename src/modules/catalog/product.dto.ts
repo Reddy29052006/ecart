@@ -1,4 +1,3 @@
-import type { ProductStatusType } from './product.types';
 
 export interface CreateProductDto {
   categoryId: string;

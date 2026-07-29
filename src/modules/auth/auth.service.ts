@@ -5,10 +5,8 @@ import type { RegisterCustomerDto, RegisterVendorDto, LoginDto, AuthResponseDto,
 import { ConflictError, UnauthorizedError, ForbiddenError } from '@/lib/errors/app-error';
 import { logger } from '@/lib/logger/logger';
 
-// ─────────────────────────────────────────────────────────────
 // Auth Service — Business logic / use case orchestration
 // Does NOT touch the database directly. Uses repository contract.
-// ─────────────────────────────────────────────────────────────
 
 const SALT_ROUNDS = 12;
 
@@ -16,7 +14,7 @@ export class AuthService implements IAuthService {
   constructor(
     private readonly authRepository: IAuthRepository,
     private readonly tokenService: ITokenService & { getRefreshTokenExpiryDate(): Date }
-  ) {}
+  ) { }
 
   async registerCustomer(dto: RegisterCustomerDto): Promise<AuthResponseDto> {
     return this.registerUser({ ...dto, role: 'CUSTOMER' });

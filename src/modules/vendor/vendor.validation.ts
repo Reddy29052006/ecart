@@ -1,8 +1,6 @@
 import { z } from 'zod';
 
-// ─────────────────────────────────────────────────────────────
 // Vendor Module — Zod Validation Schemas
-// ─────────────────────────────────────────────────────────────
 
 export const updateVendorProfileSchema = z.object({
   businessName: z.string().trim().min(2, 'Business name must be at least 2 characters').max(100).optional(),

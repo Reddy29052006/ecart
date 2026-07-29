@@ -4,7 +4,7 @@ import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
 import { requireRole } from '@/lib/auth/permissions';
-import { updateProductStatusSchema } from '@/modules/catalog/product.validation';
+import { updateProductStatusSchema } from '@/modules/catalog';
 
 // PATCH /api/v1/vendors/me/products/[productId]/status — Update product lifecycle status
 export async function PATCH(

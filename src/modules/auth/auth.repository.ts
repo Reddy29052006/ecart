@@ -2,13 +2,11 @@ import type { PrismaClient } from '@prisma/client';
 import type { IAuthRepository } from './auth.contracts';
 import type { AuthUser } from './auth.types';
 
-// ─────────────────────────────────────────────────────────────
 // Auth Repository — PostgreSQL/Prisma implementation
 // Responsible ONLY for persistence. No business logic here.
-// ─────────────────────────────────────────────────────────────
 
 export class AuthRepository implements IAuthRepository {
-  constructor(private readonly db: PrismaClient) {}
+  constructor(private readonly db: PrismaClient) { }
 
   async findUserByEmail(email: string): Promise<(AuthUser & { passwordHash: string }) | null> {
     const user = await this.db.user.findUnique({ where: { email } });

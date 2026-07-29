@@ -1,8 +1,6 @@
 import type { VendorStatusType } from './vendor.types';
 
-// ─────────────────────────────────────────────────────────────
 // Vendor Module — DTOs (Data Transfer Objects)
-// ─────────────────────────────────────────────────────────────
 
 export interface UpdateVendorProfileDto {
   businessName?: string;

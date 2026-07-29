@@ -1,8 +1,6 @@
 import { z } from 'zod';
 
-// ─────────────────────────────────────────────────────────────
 // Customer Module — Zod Validation Schemas
-// ─────────────────────────────────────────────────────────────
 
 export const updateCustomerProfileSchema = z.object({
   firstName: z.string().trim().max(50).optional(),

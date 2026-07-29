@@ -1,6 +1,4 @@
-// ─────────────────────────────────────────────────────────────
 // Customer Module — Domain Types & Interfaces
-// ─────────────────────────────────────────────────────────────
 
 export interface CustomerProfileEntity {
   id: string;

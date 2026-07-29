@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { prisma as defaultPrisma } from '@/lib/db/prisma';
 import type { IProductRepository } from './product.contracts';
 import type { ProductEntity, ProductImageEntity, ProductStatusType } from './product.types';
@@ -43,7 +43,7 @@ export class ProductRepository implements IProductRepository {
     const skip = (page - 1) * pageSize;
 
     // Build Prisma filter clauses for active products
-    const whereClause: any = {
+    const whereClause: Prisma.ProductWhereInput = {
       status: 'ACTIVE',
     };
 
@@ -77,7 +77,7 @@ export class ProductRepository implements IProductRepository {
     }
 
     // Build sorting clause
-    let orderBy: any = { createdAt: 'desc' };
+    let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: 'desc' };
     if (query.sortBy === 'price_asc') {
       orderBy = { price: 'asc' };
     } else if (query.sortBy === 'price_desc') {

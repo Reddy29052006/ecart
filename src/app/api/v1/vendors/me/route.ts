@@ -3,8 +3,8 @@ import { container } from '@/composition-root';
 import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
-import { requireAuth, requireRole } from '@/lib/auth/permissions';
-import { updateVendorProfileSchema } from '@/modules/vendor/vendor.validation';
+import { requireRole } from '@/lib/auth/permissions';
+import { updateVendorProfileSchema } from '@/modules/vendor';
 
 // Get the current logged-in vendor's storefront profile
 export async function GET(request: NextRequest): Promise<NextResponse> {

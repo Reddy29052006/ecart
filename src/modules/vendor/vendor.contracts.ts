@@ -1,7 +1,7 @@
 import type { VendorProfileEntity, VendorStatusType } from './vendor.types';
 import type { UpdateVendorProfileDto } from './vendor.dto';
 
-// ── Vendor Repository Contract ───────────────────────────────
+//  Vendor Repository Contract 
 
 export interface IVendorRepository {
   findProfileByUserId(userId: string): Promise<VendorProfileEntity | null>;
@@ -9,7 +9,7 @@ export interface IVendorRepository {
   updateStatus(userId: string, status: VendorStatusType): Promise<VendorProfileEntity>;
 }
 
-// ── Vendor Service Contract ──────────────────────────────────
+//  Vendor Service Contract
 
 export interface IVendorService {
   getProfile(userId: string): Promise<VendorProfileEntity>;

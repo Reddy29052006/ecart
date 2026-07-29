@@ -62,6 +62,8 @@ model CustomerProfile {
   displayName  String?
   profileImage String?
 
+  cart Cart?
+
   @@map("customer_profiles")
 }
 
@@ -196,6 +198,7 @@ model ProductVariant {
   attributes VariantAttribute[]
   inventory  Inventory?
   movements  InventoryMovement[]
+  cartItems  CartItem[]
 
   @@map("product_variants")
 }
@@ -241,4 +244,32 @@ model InventoryMovement {
   createdAt     DateTime       @default(now())
 
   @@map("inventory_movements")
+}
+
+// Stage 7 — Shopping Cart
+
+model Cart {
+  id                String          @id @default(cuid())
+  customerProfileId String          @unique
+  customerProfile   CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  items CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id               String         @id @default(cuid())
+  cartId           String
+  cart             Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productVariantId String
+  variant          ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+  quantity         Int            @default(1)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@unique([cartId, productVariantId])
+  @@map("cart_items")
 }

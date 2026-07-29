@@ -2,10 +2,8 @@ import type { NextRequest } from 'next/server';
 import { TokenService } from './token.service';
 import { UnauthorizedError, ForbiddenError } from '@/lib/errors/app-error';
 
-// ─────────────────────────────────────────────────────────────
 // Auth Middleware / Request Helpers
 // Extracts and validates the current authenticated user.
-// ─────────────────────────────────────────────────────────────
 
 const tokenService = new TokenService();
 
@@ -48,3 +46,33 @@ export async function requireRole(
   }
   return user;
 }
+
+/**
+ * Requires administrative authorization.
+ * Checks for valid admin secret header or admin token capability.
+ */
+export async function requireAdmin(request: NextRequest): Promise<{ isAdmin: boolean }> {
+  const adminSecretHeader = request.headers.get('x-admin-secret');
+  const expectedSecret = process.env.ADMIN_SECRET || 'admin-secret-key';
+
+  if (adminSecretHeader && adminSecretHeader === expectedSecret) {
+    return { isAdmin: true };
+  }
+
+  // Also check if request carries an authenticated token with ADMIN role capability
+  const authHeader = request.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.slice(7);
+    try {
+      const payload = await tokenService.verifyAccessToken(token);
+      if (payload.role === 'ADMIN') {
+        return { isAdmin: true };
+      }
+    } catch {
+      // Fall through to throw ForbiddenError below
+    }
+  }
+
+  throw new ForbiddenError('Administrative privileges required');
+}
+

@@ -1,6 +1,4 @@
-// ─────────────────────────────────────────────────────────────
 // Auth Module — Domain Types
-// ─────────────────────────────────────────────────────────────
 
 export type UserRole = 'CUSTOMER' | 'VENDOR';
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';

@@ -6,7 +6,7 @@ const envSchema = z.object({
     .min(1, 'DATABASE_URL is required')
     .default('postgresql://postgres:postgres@localhost:5432/ecart_db?schema=public'),
   NODE_ENV: z
-    .enum(['development', 'testing', 'production'])
+    .enum(['development', 'testing', 'test', 'production'])
     .default('development'),
   PORT: z.coerce.number().default(3000),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),

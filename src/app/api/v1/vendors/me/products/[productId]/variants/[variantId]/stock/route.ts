@@ -4,7 +4,7 @@ import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
 import { requireRole } from '@/lib/auth/permissions';
-import { addStockSchema } from '@/modules/inventory/inventory.validation';
+import { addStockSchema } from '@/modules/inventory';
 
 // Add incoming stock units to a variant (creates a STOCK_IN movement record)
 export async function POST(

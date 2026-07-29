@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
+    "test": "vitest run",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -30,6 +31,7 @@
     "eslint-config-next": "^15.1.0",
     "prettier": "^3.4.2",
     "prisma": "^6.0.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.10"
   }
 }

@@ -4,7 +4,7 @@ import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
 import { requireRole } from '@/lib/auth/permissions';
-import { createProductSchema } from '@/modules/catalog/product.validation';
+import { createProductSchema } from '@/modules/catalog';
 
 // Fetch all products created by the currently logged-in vendor
 export async function GET(request: NextRequest): Promise<NextResponse> {

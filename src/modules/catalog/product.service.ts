@@ -2,7 +2,7 @@ import type { IProductRepository, IProductService } from './product.contracts';
 import type { ICategoryRepository } from './category.contracts';
 import type { ProductEntity, ProductImageEntity, ProductStatusType } from './product.types';
 import type { CreateProductDto, UpdateProductDto, AddProductImageDto } from './product.dto';
-import { NotFoundError, ForbiddenError, ConflictError } from '@/lib/errors/app-error';
+import { NotFoundError, ForbiddenError } from '@/lib/errors/app-error';
 import { logger } from '@/lib/logger/logger';
 import { generateSlug } from '@/lib/utils/slug';
 

@@ -3,7 +3,7 @@ import { container } from '@/composition-root';
 import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
-import { selectRoleSchema } from '@/modules/auth/auth.validation';
+import { selectRoleSchema } from '@/modules/auth';
 
 // POST /api/v1/auth/select-role — Phase 2 Role Selection for dual-role users
 export async function POST(request: NextRequest): Promise<NextResponse> {

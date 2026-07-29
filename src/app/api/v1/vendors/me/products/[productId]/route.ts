@@ -4,7 +4,7 @@ import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
 import { requireRole } from '@/lib/auth/permissions';
-import { updateProductSchema } from '@/modules/catalog/product.validation';
+import { updateProductSchema } from '@/modules/catalog';
 
 // GET /api/v1/vendors/me/products/[productId] — Fetch single vendor product
 export async function GET(

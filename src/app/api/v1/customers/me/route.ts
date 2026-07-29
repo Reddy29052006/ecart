@@ -3,8 +3,8 @@ import { container } from '@/composition-root';
 import { ApiResponse } from '@/lib/http/api-response';
 import { handleApiError } from '@/lib/errors/error-handler';
 import { ValidationError } from '@/lib/errors/app-error';
-import { requireAuth, requireRole } from '@/lib/auth/permissions';
-import { updateCustomerProfileSchema } from '@/modules/customer/customer.validation';
+import { requireRole } from '@/lib/auth/permissions';
+import { updateCustomerProfileSchema } from '@/modules/customer';
 
 // Get the current customer's profile details
 export async function GET(request: NextRequest): Promise<NextResponse> {
