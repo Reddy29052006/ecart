@@ -32,3 +32,24 @@ export interface VendorOrderListItem {
 export interface VendorOrderQueryDto {
   status?: VendorOrderStatusType;
 }
+
+export interface VendorOrderStatusHistoryEntity {
+  id: string;
+  vendorOrderId: string;
+  previousStatus: VendorOrderStatusType | null;
+  status: VendorOrderStatusType;
+  title: string;
+  changedBy: string;
+  comment: string | null;
+  createdAt: Date;
+}
+
+export interface VendorOrderTimelineResponse {
+  vendorOrderId: string;
+  orderNumber: string;
+  currentStatus: VendorOrderStatusType;
+  currentStatusTitle: string;
+  rejectionReason: string | null;
+  history: VendorOrderStatusHistoryEntity[];
+}
+

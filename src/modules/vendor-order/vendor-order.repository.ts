@@ -45,9 +45,21 @@ export class VendorOrderRepository implements IVendorOrderRepository {
   async updateVendorOrderStatus(
     vendorOrderId: string,
     status: VendorOrderStatusType,
-    reason?: string
+    changedBy: string,
+    reason?: string,
+    comment?: string
   ): Promise<any> {
     return this.db.$transaction(async (tx) => {
+      // 0. Fetch existing state for previous status tracking
+      const existing = await tx.vendorOrder.findUnique({
+        where: { id: vendorOrderId },
+        include: { order: { select: { id: true, status: true } } },
+      });
+
+      const previousVendorStatus = existing?.status ?? null;
+      const parentOrderId = existing?.orderId;
+      const previousParentStatus = existing?.order?.status ?? null;
+
       // 1. Update this vendor sub-order
       const updatedVendorOrder = await tx.vendorOrder.update({
         where: { id: vendorOrderId },
@@ -58,38 +70,76 @@ export class VendorOrderRepository implements IVendorOrderRepository {
         include: this.vendorOrderInclude,
       });
 
-      // 2. Sync parent master Order status based on all vendor sub-orders
-      const parentOrderId = updatedVendorOrder.orderId;
-      const allVendorOrders = await tx.vendorOrder.findMany({
-        where: { orderId: parentOrderId },
+      // 1b. Create vendor order status history entry
+      await tx.vendorOrderStatusHistory.create({
+        data: {
+          vendorOrderId,
+          previousStatus: previousVendorStatus,
+          status: status as VendorOrderStatus,
+          changedBy,
+          comment: comment ?? (reason ? `Rejection reason: ${reason}` : `Status changed to ${status}`),
+        },
       });
 
-      const statuses = allVendorOrders.map((vo) => vo.status);
-      let newParentStatus: 'PENDING' | 'CONFIRMED' | 'PARTIALLY_FULFILLED' | 'FULFILLED' | 'CANCELLED' = 'PENDING';
+      // 2. Sync parent master Order status based on all vendor sub-orders
+      if (parentOrderId) {
+        const allVendorOrders = await tx.vendorOrder.findMany({
+          where: { orderId: parentOrderId },
+        });
 
-      const allCompleted = statuses.every((s) => s === 'COMPLETED');
-      const allRejectedOrCancelled = statuses.every((s) => s === 'REJECTED' || s === 'CANCELLED');
-      const anyCompleted = statuses.some((s) => s === 'COMPLETED' || s === 'SHIPPED');
-      const allAcceptedOrBeyond = statuses.every(
-        (s) => s === 'ACCEPTED' || s === 'PROCESSING' || s === 'READY' || s === 'SHIPPED' || s === 'COMPLETED'
-      );
+        const statuses = allVendorOrders.map((vo) => vo.status);
+        let newParentStatus: 'PENDING' | 'CONFIRMED' | 'PARTIALLY_FULFILLED' | 'FULFILLED' | 'CANCELLED' = 'PENDING';
 
-      if (allCompleted) {
-        newParentStatus = 'FULFILLED';
-      } else if (allRejectedOrCancelled) {
-        newParentStatus = 'CANCELLED';
-      } else if (anyCompleted) {
-        newParentStatus = 'PARTIALLY_FULFILLED';
-      } else if (allAcceptedOrBeyond) {
-        newParentStatus = 'CONFIRMED';
+        const allCompleted = statuses.every((s) => s === 'COMPLETED');
+        const allRejectedOrCancelled = statuses.every((s) => s === 'REJECTED' || s === 'CANCELLED');
+        const anyCompleted = statuses.some((s) => s === 'COMPLETED' || s === 'SHIPPED');
+        const allAcceptedOrBeyond = statuses.every(
+          (s) => s === 'ACCEPTED' || s === 'PROCESSING' || s === 'READY' || s === 'SHIPPED' || s === 'COMPLETED'
+        );
+
+        if (allCompleted) {
+          newParentStatus = 'FULFILLED';
+        } else if (allRejectedOrCancelled) {
+          newParentStatus = 'CANCELLED';
+        } else if (anyCompleted) {
+          newParentStatus = 'PARTIALLY_FULFILLED';
+        } else if (allAcceptedOrBeyond) {
+          newParentStatus = 'CONFIRMED';
+        }
+
+        if (previousParentStatus !== newParentStatus) {
+          await tx.order.update({
+            where: { id: parentOrderId },
+            data: { status: newParentStatus },
+          });
+
+          await tx.orderStatusHistory.create({
+            data: {
+              orderId: parentOrderId,
+              previousStatus: previousParentStatus,
+              status: newParentStatus,
+              changedBy: 'SYSTEM',
+              comment: `Master order status updated automatically to ${newParentStatus} based on vendor orders`,
+            },
+          });
+        }
       }
 
-      await tx.order.update({
-        where: { id: parentOrderId },
-        data: { status: newParentStatus },
-      });
-
       return updatedVendorOrder;
+    });
+  }
+
+  async findVendorOrderStatusHistory(vendorOrderId: string, vendorProfileId: string): Promise<any[]> {
+    const vo = await this.db.vendorOrder.findFirst({
+      where: { id: vendorOrderId, vendorId: vendorProfileId },
+      select: { id: true },
+    });
+
+    if (!vo) return [];
+
+    return this.db.vendorOrderStatusHistory.findMany({
+      where: { vendorOrderId },
+      orderBy: { createdAt: 'asc' },
     });
   }
 }

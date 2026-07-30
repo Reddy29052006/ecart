@@ -34,6 +34,17 @@ export class OrderRepository implements IOrderRepository {
         },
       });
 
+      // 1b. Create initial status history entry for master order
+      await tx.orderStatusHistory.create({
+        data: {
+          orderId: order.id,
+          previousStatus: null,
+          status: 'PENDING',
+          changedBy: data.customerId,
+          comment: 'Order placed by customer',
+        },
+      });
+
       // 2. For each vendor group, create a VendorOrder then its OrderItems
       for (const vendorOrderData of data.vendorOrders) {
         const vendorOrder = await tx.vendorOrder.create({
@@ -44,6 +55,17 @@ export class OrderRepository implements IOrderRepository {
             shippingAmount: vendorOrderData.shippingAmount,
             taxAmount: vendorOrderData.taxAmount,
             totalAmount: vendorOrderData.totalAmount,
+          },
+        });
+
+        // 2b. Create initial status history entry for vendor order
+        await tx.vendorOrderStatusHistory.create({
+          data: {
+            vendorOrderId: vendorOrder.id,
+            previousStatus: null,
+            status: 'NEW',
+            changedBy: data.customerId,
+            comment: 'Sub-order created for vendor',
           },
         });
 
@@ -119,6 +141,20 @@ export class OrderRepository implements IOrderRepository {
         _count: { select: { items: true, vendorOrders: true } },
       },
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findOrderStatusHistory(orderId: string, customerId: string): Promise<any[]> {
+    const order = await this.db.order.findFirst({
+      where: { id: orderId, customerId },
+      select: { id: true },
+    });
+
+    if (!order) return [];
+
+    return this.db.orderStatusHistory.findMany({
+      where: { orderId },
+      orderBy: { createdAt: 'asc' },
     });
   }
 }

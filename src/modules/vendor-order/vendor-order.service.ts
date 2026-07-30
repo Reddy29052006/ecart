@@ -85,6 +85,39 @@ export class VendorOrderService implements IVendorOrderService {
     return this.transitionStatus(userId, vendorOrderId, ['SHIPPED'], 'COMPLETED', 'Order marked as completed');
   }
 
+  async getVendorOrderTimeline(
+    userId: string,
+    vendorOrderId: string
+  ): Promise<import('./vendor-order.types').VendorOrderTimelineResponse> {
+    const vendorProfileId = await this.getVendorProfileId(userId);
+    const existing = await this.vendorOrderRepository.findVendorOrderById(vendorOrderId, vendorProfileId);
+
+    if (!existing) {
+      throw new NotFoundError('Vendor order not found');
+    }
+
+    const history = await this.vendorOrderRepository.findVendorOrderStatusHistory(vendorOrderId, vendorProfileId);
+    const { VENDOR_ORDER_STATUS_TITLES } = require('@/lib/order/state-machine');
+
+    return {
+      vendorOrderId: existing.id,
+      orderNumber: existing.order?.orderNumber ?? 'UNKNOWN',
+      currentStatus: existing.status as VendorOrderStatusType,
+      currentStatusTitle: VENDOR_ORDER_STATUS_TITLES[existing.status as VendorOrderStatusType] ?? existing.status,
+      rejectionReason: existing.rejectionReason ?? null,
+      history: history.map((h: any) => ({
+        id: h.id,
+        vendorOrderId: h.vendorOrderId,
+        previousStatus: h.previousStatus,
+        status: h.status,
+        title: VENDOR_ORDER_STATUS_TITLES[h.status] ?? h.status,
+        changedBy: h.changedBy,
+        comment: h.comment ?? null,
+        createdAt: h.createdAt,
+      })),
+    };
+  }
+
   private async transitionStatus(
     userId: string,
     vendorOrderId: string,
@@ -107,7 +140,13 @@ export class VendorOrderService implements IVendorOrderService {
       );
     }
 
-    const updated = await this.vendorOrderRepository.updateVendorOrderStatus(vendorOrderId, targetStatus, reason);
+    const updated = await this.vendorOrderRepository.updateVendorOrderStatus(
+      vendorOrderId,
+      targetStatus,
+      userId,
+      reason,
+      logMsg
+    );
     logger.info(`[VendorOrder] ${logMsg}`, { vendorOrderId, vendorProfileId, targetStatus });
 
     return this.formatVendorOrder(updated);

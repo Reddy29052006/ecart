@@ -74,3 +74,23 @@ export interface OrderListItem {
   vendorCount: number;
   createdAt: Date;
 }
+
+export interface OrderStatusHistoryEntity {
+  id: string;
+  orderId: string;
+  previousStatus: OrderStatusType | null;
+  status: OrderStatusType;
+  title: string;
+  changedBy: string;
+  comment: string | null;
+  createdAt: Date;
+}
+
+export interface OrderTimelineResponse {
+  orderId: string;
+  orderNumber: string;
+  currentStatus: OrderStatusType;
+  currentStatusTitle: string;
+  history: OrderStatusHistoryEntity[];
+}
+

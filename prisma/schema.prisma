@@ -313,18 +313,19 @@ model Order {
   createdAt               DateTime    @default(now())
   updatedAt               DateTime    @updatedAt
 
-  items        OrderItem[]
-  vendorOrders VendorOrder[]
+  items         OrderItem[]
+  vendorOrders  VendorOrder[]
+  statusHistory OrderStatusHistory[]
 
   @@map("orders")
 }
 
 model VendorOrder {
-  id            String            @id @default(cuid())
-  orderId       String
-  order         Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  vendorId      String
-  vendor        VendorProfile     @relation(fields: [vendorId], references: [id])
+  id              String            @id @default(cuid())
+  orderId         String
+  order           Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  vendorId        String
+  vendor          VendorProfile     @relation(fields: [vendorId], references: [id])
   status          VendorOrderStatus @default(NEW)
   rejectionReason String?
   subtotal        Float
@@ -334,7 +335,8 @@ model VendorOrder {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
-  items OrderItem[]
+  items         OrderItem[]
+  statusHistory VendorOrderStatusHistory[]
 
   @@map("vendor_orders")
 }
@@ -357,3 +359,30 @@ model OrderItem {
 
   @@map("order_items")
 }
+
+model OrderStatusHistory {
+  id             String       @id @default(cuid())
+  orderId        String
+  order          Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  previousStatus OrderStatus?
+  status         OrderStatus
+  changedBy      String       // userId or SYSTEM
+  comment        String?
+  createdAt      DateTime     @default(now())
+
+  @@map("order_status_history")
+}
+
+model VendorOrderStatusHistory {
+  id             String             @id @default(cuid())
+  vendorOrderId  String
+  vendorOrder    VendorOrder        @relation(fields: [vendorOrderId], references: [id], onDelete: Cascade)
+  previousStatus VendorOrderStatus?
+  status         VendorOrderStatus
+  changedBy      String             // userId or SYSTEM
+  comment        String?
+  createdAt      DateTime           @default(now())
+
+  @@map("vendor_order_status_history")
+}
+

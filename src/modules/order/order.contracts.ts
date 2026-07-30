@@ -1,16 +1,18 @@
-import type { OrderEntity, OrderListItem } from './order.types';
+import type { OrderEntity, OrderListItem, OrderTimelineResponse } from './order.types';
 import type { PlaceOrderDto } from './order.dto';
 
 export interface IOrderRepository {
   createOrder(data: CreateOrderData): Promise<any>;
   findOrderById(orderId: string, customerId: string): Promise<any | null>;
   findOrdersByCustomer(customerId: string): Promise<any[]>;
+  findOrderStatusHistory(orderId: string, customerId: string): Promise<any[]>;
 }
 
 export interface IOrderService {
   placeOrder(userId: string, dto: PlaceOrderDto): Promise<OrderEntity>;
   getOrder(userId: string, orderId: string): Promise<OrderEntity>;
   listOrders(userId: string): Promise<OrderListItem[]>;
+  getOrderTimeline(userId: string, orderId: string): Promise<OrderTimelineResponse>;
 }
 
 // Internal data structure passed from OrderService → OrderRepository

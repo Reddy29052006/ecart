@@ -155,6 +155,33 @@ export class OrderService implements IOrderService {
     return this.formatOrder(rawOrder);
   }
 
+  async getOrderTimeline(userId: string, orderId: string): Promise<import('./order.types').OrderTimelineResponse> {
+    const rawOrder = await this.orderRepository.findOrderById(orderId, userId);
+    if (!rawOrder) {
+      throw new NotFoundError('Order not found');
+    }
+
+    const history = await this.orderRepository.findOrderStatusHistory(orderId, userId);
+    const { ORDER_STATUS_TITLES } = require('@/lib/order/state-machine');
+
+    return {
+      orderId: rawOrder.id,
+      orderNumber: rawOrder.orderNumber,
+      currentStatus: rawOrder.status,
+      currentStatusTitle: ORDER_STATUS_TITLES[rawOrder.status] ?? rawOrder.status,
+      history: history.map((h: any) => ({
+        id: h.id,
+        orderId: h.orderId,
+        previousStatus: h.previousStatus,
+        status: h.status,
+        title: ORDER_STATUS_TITLES[h.status] ?? h.status,
+        changedBy: h.changedBy,
+        comment: h.comment ?? null,
+        createdAt: h.createdAt,
+      })),
+    };
+  }
+
   async listOrders(userId: string): Promise<OrderListItem[]> {
     const rawOrders = await this.orderRepository.findOrdersByCustomer(userId);
     return rawOrders.map((o: any) => ({

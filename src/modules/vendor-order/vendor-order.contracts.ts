@@ -1,11 +1,23 @@
 import type { VendorOrderStatusType } from '@/modules/order';
-import type { VendorOrderDetailEntity, VendorOrderListItem, VendorOrderQueryDto } from './vendor-order.types';
+import type {
+  VendorOrderDetailEntity,
+  VendorOrderListItem,
+  VendorOrderQueryDto,
+  VendorOrderTimelineResponse,
+} from './vendor-order.types';
 import type { RejectVendorOrderDto } from './vendor-order.dto';
 
 export interface IVendorOrderRepository {
   findVendorOrders(vendorProfileId: string, query?: VendorOrderQueryDto): Promise<any[]>;
   findVendorOrderById(vendorOrderId: string, vendorProfileId: string): Promise<any | null>;
-  updateVendorOrderStatus(vendorOrderId: string, status: VendorOrderStatusType, reason?: string): Promise<any>;
+  updateVendorOrderStatus(
+    vendorOrderId: string,
+    status: VendorOrderStatusType,
+    changedBy: string,
+    reason?: string,
+    comment?: string
+  ): Promise<any>;
+  findVendorOrderStatusHistory(vendorOrderId: string, vendorProfileId: string): Promise<any[]>;
 }
 
 export interface IVendorOrderService {
@@ -17,4 +29,6 @@ export interface IVendorOrderService {
   markReady(userId: string, vendorOrderId: string): Promise<VendorOrderDetailEntity>;
   markShipped(userId: string, vendorOrderId: string): Promise<VendorOrderDetailEntity>;
   markCompleted(userId: string, vendorOrderId: string): Promise<VendorOrderDetailEntity>;
+  getVendorOrderTimeline(userId: string, vendorOrderId: string): Promise<VendorOrderTimelineResponse>;
 }
+
