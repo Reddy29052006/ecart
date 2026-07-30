@@ -12,6 +12,12 @@ export class VendorRepository implements IVendorRepository {
     });
   }
 
+  async findProfileById(id: string): Promise<VendorProfileEntity | null> {
+    return this.prisma.vendorProfile.findUnique({
+      where: { id },
+    });
+  }
+
   async upsertProfile(
     userId: string,
     dto: UpdateVendorProfileDto & { businessName: string }

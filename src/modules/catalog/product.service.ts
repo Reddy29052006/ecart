@@ -1,5 +1,6 @@
 import type { IProductRepository, IProductService } from './product.contracts';
 import type { ICategoryRepository } from './category.contracts';
+import type { IVendorRepository } from '@/modules/vendor/vendor.contracts';
 import type { ProductEntity, ProductImageEntity, ProductStatusType } from './product.types';
 import type { CreateProductDto, UpdateProductDto, AddProductImageDto } from './product.dto';
 import { NotFoundError, ForbiddenError } from '@/lib/errors/app-error';
@@ -11,7 +12,8 @@ import type { ProductQueryDto, PaginatedProductsResult } from './catalog.dto';
 export class ProductService implements IProductService {
   constructor(
     private readonly productRepository: IProductRepository,
-    private readonly categoryRepository: ICategoryRepository
+    private readonly categoryRepository: ICategoryRepository,
+    private readonly vendorRepository?: IVendorRepository
   ) {}
 
   async getVendorProducts(vendorId: string): Promise<ProductEntity[]> {
@@ -90,6 +92,14 @@ export class ProductService implements IProductService {
 
   async updateProductStatus(id: string, vendorId: string, status: ProductStatusType): Promise<ProductEntity> {
     await this.getProductById(id, vendorId);
+
+    if (this.vendorRepository) {
+      const vendor = await this.vendorRepository.findProfileById(vendorId);
+      if (!vendor || vendor.status !== 'ACTIVE') {
+        throw new ForbiddenError('Only active vendors can change product status');
+      }
+    }
+
     const updated = await this.productRepository.updateStatus(id, status);
     logger.info(`[Product] Updated product status to ${status}`, { productId: id, vendorId });
     return updated;

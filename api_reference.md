@@ -250,8 +250,33 @@ POST /categories
 ### List My Products
 ```http
 GET /vendors/me/products
+Authorization: Bearer <vendorAccessToken>
 ```
 *(no body)*
+
+**Sample Response:**
+```json
+{
+  "success": true,
+  "message": "Vendor products retrieved",
+  "data": [
+    {
+      "id": "cm123prod456",
+      "vendorId": "cm123vendor789",
+      "name": "Nike Air Max",
+      "slug": "nike-air-max",
+      "description": "Premium running shoes",
+      "brand": "Nike",
+      "price": 4999,
+      "stock": 10,
+      "status": "ACTIVE",
+      "categoryId": "cm123cat456",
+      "createdAt": "2026-07-30T10:00:00.000Z",
+      "updatedAt": "2026-07-30T10:00:00.000Z"
+    }
+  ]
+}
+```
 
 ### Create a Product
 ```http
@@ -633,6 +658,95 @@ GET /products/:slugOrId
 
 ---
 
+---
+
+## 📦 Customer Orders (`/orders`)
+> All endpoints require `Authorization: Bearer <customerAccessToken>`
+
+### Place an Order
+```http
+POST /orders
+Authorization: Bearer <customerAccessToken>
+```
+```json
+{
+  "addressId": "<deliveryAddressId>"
+}
+```
+> Converts customer's active cart into an order. Clears cart upon success and sets initial status to `PENDING`.
+
+### List My Orders
+```http
+GET /orders
+Authorization: Bearer <customerAccessToken>
+```
+*(no body)*
+
+### Get Order Details
+```http
+GET /orders/:orderId
+Authorization: Bearer <customerAccessToken>
+```
+*(no body)*
+
+---
+
+## 🏬 Vendor Order Fulfillment (`/vendors/me/orders`)
+> All endpoints require `Authorization: Bearer <vendorAccessToken>`
+
+### List Assigned Vendor Orders
+```http
+GET /vendors/me/orders?status=NEW
+Authorization: Bearer <vendorAccessToken>
+```
+*(no body)*
+> Optional query parameter `status`: `NEW`, `ACCEPTED`, `PROCESSING`, `READY_FOR_SHIPMENT`, `REJECTED`, `CANCELLED`.
+
+### Get Vendor Order Details
+```http
+GET /vendors/me/orders/:id
+Authorization: Bearer <vendorAccessToken>
+```
+*(no body)*
+
+### Accept Vendor Order
+```http
+POST /vendors/me/orders/:id/accept
+Authorization: Bearer <vendorAccessToken>
+```
+*(no body)*
+> Transitions vendor order status from `NEW` to `ACCEPTED`.
+
+### Reject Vendor Order
+```http
+POST /vendors/me/orders/:id/reject
+Authorization: Bearer <vendorAccessToken>
+```
+```json
+{
+  "rejectionReason": "Item out of stock in warehouse"
+}
+```
+> Transitions vendor order status from `NEW` to `REJECTED`.
+
+### Process Vendor Order
+```http
+POST /vendors/me/orders/:id/processing
+Authorization: Bearer <vendorAccessToken>
+```
+*(no body)*
+> Transitions vendor order status from `ACCEPTED` to `PROCESSING`.
+
+### Mark Order Ready for Shipment
+```http
+POST /vendors/me/orders/:id/ready
+Authorization: Bearer <vendorAccessToken>
+```
+*(no body)*
+> Transitions vendor order status from `PROCESSING` to `READY_FOR_SHIPMENT`.
+
+---
+
 ## 🏥 Health Check
 
 ### Server & Database Health
@@ -658,5 +772,7 @@ GET /health
 | **Inventory** | `/vendors/me/products/:id/variants/:vid/inventory`<br>`/vendors/me/products/:id/variants/:vid/movements` | `/vendors/me/products/:id/variants/:vid/stock`<br>`/vendors/me/products/:id/variants/:vid/adjust` | — | — | — |
 | **Shopping Cart** | `/cart` | `/cart/items` | `/cart/items/:itemId` | — | `/cart/items/:itemId`<br>`/cart` |
 | **Checkout Preview** | — | `/cart/checkout/preview` | — | — | — |
+| **Customer Orders** | `/orders`<br>`/orders/:orderId` | `/orders` | — | — | — |
+| **Vendor Orders** | `/vendors/me/orders`<br>`/vendors/me/orders/:id` | `/vendors/me/orders/:id/accept`<br>`/vendors/me/orders/:id/reject`<br>`/vendors/me/orders/:id/processing`<br>`/vendors/me/orders/:id/ready` | — | — | — |
 | **Public Catalog** | `/products`<br>`/products/:slugOrId` | — | — | — | — |
 | **Health** | `/health` | — | — | — | — |

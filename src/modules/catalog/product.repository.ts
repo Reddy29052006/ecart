@@ -42,9 +42,12 @@ export class ProductRepository implements IProductRepository {
     const pageSize = query.pageSize ?? 10;
     const skip = (page - 1) * pageSize;
 
-    // Build Prisma filter clauses for active products
+    // Build Prisma filter clauses for active products from active vendors
     const whereClause: Prisma.ProductWhereInput = {
       status: 'ACTIVE',
+      vendor: {
+        status: 'ACTIVE',
+      },
     };
 
     if (query.search) {
@@ -114,6 +117,9 @@ export class ProductRepository implements IProductRepository {
     return this.prisma.product.findFirst({
       where: {
         status: 'ACTIVE',
+        vendor: {
+          status: 'ACTIVE',
+        },
         OR: [{ id: slugOrId }, { slug: slugOrId }],
       },
       include: {

@@ -64,7 +64,7 @@ export class CompositionRoot {
     this.categoryRepository = new CategoryRepository(prisma);
     this.categoryService = new CategoryService(this.categoryRepository);
     this.productRepository = new ProductRepository(prisma);
-    this.productService = new ProductService(this.productRepository, this.categoryRepository);
+    this.productService = new ProductService(this.productRepository, this.categoryRepository, this.vendorRepository);
 
     // Variant & inventory tracking
     this.inventoryRepository = new InventoryRepository(prisma);

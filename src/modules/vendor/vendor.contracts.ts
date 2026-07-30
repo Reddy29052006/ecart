@@ -5,6 +5,7 @@ import type { UpdateVendorProfileDto } from './vendor.dto';
 
 export interface IVendorRepository {
   findProfileByUserId(userId: string): Promise<VendorProfileEntity | null>;
+  findProfileById(id: string): Promise<VendorProfileEntity | null>;
   upsertProfile(userId: string, dto: UpdateVendorProfileDto & { businessName: string }): Promise<VendorProfileEntity>;
   updateStatus(userId: string, status: VendorStatusType): Promise<VendorProfileEntity>;
 }
