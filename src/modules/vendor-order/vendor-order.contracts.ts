@@ -8,16 +8,16 @@ import type {
 import type { RejectVendorOrderDto } from './vendor-order.dto';
 
 export interface IVendorOrderRepository {
-  findVendorOrders(vendorProfileId: string, query?: VendorOrderQueryDto): Promise<any[]>;
-  findVendorOrderById(vendorOrderId: string, vendorProfileId: string): Promise<any | null>;
+  findVendorOrders(vendorProfileId: string, query?: VendorOrderQueryDto): Promise<unknown[]>;
+  findVendorOrderById(vendorOrderId: string, vendorProfileId: string): Promise<unknown | null>;
   updateVendorOrderStatus(
     vendorOrderId: string,
     status: VendorOrderStatusType,
     changedBy: string,
     reason?: string,
     comment?: string
-  ): Promise<any>;
-  findVendorOrderStatusHistory(vendorOrderId: string, vendorProfileId: string): Promise<any[]>;
+  ): Promise<unknown>;
+  findVendorOrderStatusHistory(vendorOrderId: string, vendorProfileId: string): Promise<unknown[]>;
 }
 
 export interface IVendorOrderService {
@@ -31,4 +31,3 @@ export interface IVendorOrderService {
   markCompleted(userId: string, vendorOrderId: string): Promise<VendorOrderDetailEntity>;
   getVendorOrderTimeline(userId: string, vendorOrderId: string): Promise<VendorOrderTimelineResponse>;
 }
-

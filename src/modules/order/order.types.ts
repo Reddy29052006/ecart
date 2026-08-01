@@ -1,4 +1,5 @@
 import type { AddressSnapshot } from '@/modules/checkout';
+export type { AddressSnapshot };
 
 export type OrderStatusType =
   | 'PENDING'

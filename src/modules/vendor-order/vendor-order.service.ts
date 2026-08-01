@@ -5,6 +5,59 @@ import type { IVendorRepository } from '@/modules/vendor';
 import type { VendorOrderStatusType } from '@/modules/order';
 import { BadRequestError, NotFoundError } from '@/lib/errors/app-error';
 import { logger } from '@/lib/logger/logger';
+import { VENDOR_ORDER_STATUS_TITLES } from '@/lib/order/state-machine';
+
+interface RawVendorOrderListItem {
+  id: string;
+  orderId: string;
+  order?: { orderNumber?: string };
+  status: string;
+  totalAmount: number;
+  _count?: { items?: number };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface RawVendorOrderItem {
+  id: string;
+  orderId: string;
+  vendorOrderId: string;
+  vendorId: string;
+  productId: string;
+  variantId: string;
+  productNameSnapshot: string;
+  skuSnapshot: string;
+  unitPrice: number;
+  quantity: number;
+  totalPrice: number;
+  createdAt: Date;
+}
+
+interface RawVendorOrderDetail {
+  id: string;
+  orderId: string;
+  order?: { orderNumber?: string; shippingAddressSnapshot?: import('@/modules/checkout').AddressSnapshot };
+  vendorId: string;
+  status: string;
+  rejectionReason?: string | null;
+  subtotal: number;
+  shippingAmount: number;
+  taxAmount: number;
+  totalAmount: number;
+  items?: RawVendorOrderItem[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface RawVendorOrderStatusHistory {
+  id: string;
+  vendorOrderId: string;
+  previousStatus?: string | null;
+  status: string;
+  changedBy: string;
+  comment?: string | null;
+  createdAt: Date;
+}
 
 export class VendorOrderService implements IVendorOrderService {
   constructor(
@@ -22,9 +75,12 @@ export class VendorOrderService implements IVendorOrderService {
 
   async listOrders(userId: string, query?: VendorOrderQueryDto): Promise<VendorOrderListItem[]> {
     const vendorProfileId = await this.getVendorProfileId(userId);
-    const rawOrders = await this.vendorOrderRepository.findVendorOrders(vendorProfileId, query);
+    const rawOrders = (await this.vendorOrderRepository.findVendorOrders(
+      vendorProfileId,
+      query
+    )) as RawVendorOrderListItem[];
 
-    return rawOrders.map((o: any) => ({
+    return rawOrders.map((o) => ({
       id: o.id,
       orderId: o.orderId,
       orderNumber: o.order?.orderNumber ?? 'UNKNOWN',
@@ -38,7 +94,10 @@ export class VendorOrderService implements IVendorOrderService {
 
   async getOrderDetails(userId: string, vendorOrderId: string): Promise<VendorOrderDetailEntity> {
     const vendorProfileId = await this.getVendorProfileId(userId);
-    const rawOrder = await this.vendorOrderRepository.findVendorOrderById(vendorOrderId, vendorProfileId);
+    const rawOrder = (await this.vendorOrderRepository.findVendorOrderById(
+      vendorOrderId,
+      vendorProfileId
+    )) as RawVendorOrderDetail | null;
 
     if (!rawOrder) {
       throw new NotFoundError('Vendor order not found');
@@ -90,14 +149,19 @@ export class VendorOrderService implements IVendorOrderService {
     vendorOrderId: string
   ): Promise<import('./vendor-order.types').VendorOrderTimelineResponse> {
     const vendorProfileId = await this.getVendorProfileId(userId);
-    const existing = await this.vendorOrderRepository.findVendorOrderById(vendorOrderId, vendorProfileId);
+    const existing = (await this.vendorOrderRepository.findVendorOrderById(
+      vendorOrderId,
+      vendorProfileId
+    )) as RawVendorOrderDetail | null;
 
     if (!existing) {
       throw new NotFoundError('Vendor order not found');
     }
 
-    const history = await this.vendorOrderRepository.findVendorOrderStatusHistory(vendorOrderId, vendorProfileId);
-    const { VENDOR_ORDER_STATUS_TITLES } = require('@/lib/order/state-machine');
+    const history = (await this.vendorOrderRepository.findVendorOrderStatusHistory(
+      vendorOrderId,
+      vendorProfileId
+    )) as RawVendorOrderStatusHistory[];
 
     return {
       vendorOrderId: existing.id,
@@ -105,12 +169,12 @@ export class VendorOrderService implements IVendorOrderService {
       currentStatus: existing.status as VendorOrderStatusType,
       currentStatusTitle: VENDOR_ORDER_STATUS_TITLES[existing.status as VendorOrderStatusType] ?? existing.status,
       rejectionReason: existing.rejectionReason ?? null,
-      history: history.map((h: any) => ({
+      history: history.map((h) => ({
         id: h.id,
         vendorOrderId: h.vendorOrderId,
-        previousStatus: h.previousStatus,
-        status: h.status,
-        title: VENDOR_ORDER_STATUS_TITLES[h.status] ?? h.status,
+        previousStatus: (h.previousStatus as VendorOrderStatusType) ?? null,
+        status: h.status as VendorOrderStatusType,
+        title: VENDOR_ORDER_STATUS_TITLES[h.status as VendorOrderStatusType] ?? h.status,
         changedBy: h.changedBy,
         comment: h.comment ?? null,
         createdAt: h.createdAt,
@@ -127,7 +191,10 @@ export class VendorOrderService implements IVendorOrderService {
     reason?: string
   ): Promise<VendorOrderDetailEntity> {
     const vendorProfileId = await this.getVendorProfileId(userId);
-    const existing = await this.vendorOrderRepository.findVendorOrderById(vendorOrderId, vendorProfileId);
+    const existing = (await this.vendorOrderRepository.findVendorOrderById(
+      vendorOrderId,
+      vendorProfileId
+    )) as RawVendorOrderDetail | null;
 
     if (!existing) {
       throw new NotFoundError('Vendor order not found');
@@ -136,23 +203,24 @@ export class VendorOrderService implements IVendorOrderService {
     if (!allowedCurrentStatuses.includes(existing.status as VendorOrderStatusType)) {
       throw new BadRequestError(
         `Cannot transition vendor order status from "${existing.status}" to "${targetStatus}". ` +
-        `Allowed current status(es): ${allowedCurrentStatuses.join(', ')}`
+          `Allowed current status(es): ${allowedCurrentStatuses.join(', ')}`
       );
     }
 
-    const updated = await this.vendorOrderRepository.updateVendorOrderStatus(
+    const updated = (await this.vendorOrderRepository.updateVendorOrderStatus(
       vendorOrderId,
       targetStatus,
       userId,
       reason,
       logMsg
-    );
+    )) as RawVendorOrderDetail;
+
     logger.info(`[VendorOrder] ${logMsg}`, { vendorOrderId, vendorProfileId, targetStatus });
 
     return this.formatVendorOrder(updated);
   }
 
-  private formatVendorOrder(raw: any): VendorOrderDetailEntity {
+  private formatVendorOrder(raw: RawVendorOrderDetail): VendorOrderDetailEntity {
     return {
       id: raw.id,
       orderId: raw.orderId,
@@ -164,8 +232,8 @@ export class VendorOrderService implements IVendorOrderService {
       shippingAmount: raw.shippingAmount,
       taxAmount: raw.taxAmount,
       totalAmount: raw.totalAmount,
-      shippingAddressSnapshot: raw.order?.shippingAddressSnapshot ?? {},
-      items: (raw.items || []).map((item: any) => ({
+      shippingAddressSnapshot: raw.order?.shippingAddressSnapshot ?? ({} as import('@/modules/checkout').AddressSnapshot),
+      items: (raw.items || []).map((item) => ({
         id: item.id,
         orderId: item.orderId,
         vendorOrderId: item.vendorOrderId,

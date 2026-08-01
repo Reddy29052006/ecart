@@ -16,8 +16,8 @@ export class VendorOrderRepository implements IVendorOrderRepository {
     items: true,
   };
 
-  async findVendorOrders(vendorProfileId: string, query?: VendorOrderQueryDto): Promise<any[]> {
-    const where: any = { vendorId: vendorProfileId };
+  async findVendorOrders(vendorProfileId: string, query?: VendorOrderQueryDto): Promise<unknown[]> {
+    const where: Record<string, unknown> = { vendorId: vendorProfileId };
     if (query?.status) {
       where.status = query.status as VendorOrderStatus;
     }
@@ -32,7 +32,7 @@ export class VendorOrderRepository implements IVendorOrderRepository {
     });
   }
 
-  async findVendorOrderById(vendorOrderId: string, vendorProfileId: string): Promise<any | null> {
+  async findVendorOrderById(vendorOrderId: string, vendorProfileId: string): Promise<unknown | null> {
     return this.db.vendorOrder.findFirst({
       where: {
         id: vendorOrderId,
@@ -48,7 +48,7 @@ export class VendorOrderRepository implements IVendorOrderRepository {
     changedBy: string,
     reason?: string,
     comment?: string
-  ): Promise<any> {
+  ): Promise<unknown> {
     return this.db.$transaction(async (tx) => {
       // 0. Fetch existing state for previous status tracking
       const existing = await tx.vendorOrder.findUnique({
@@ -129,7 +129,7 @@ export class VendorOrderRepository implements IVendorOrderRepository {
     });
   }
 
-  async findVendorOrderStatusHistory(vendorOrderId: string, vendorProfileId: string): Promise<any[]> {
+  async findVendorOrderStatusHistory(vendorOrderId: string, vendorProfileId: string): Promise<unknown[]> {
     const vo = await this.db.vendorOrder.findFirst({
       where: { id: vendorOrderId, vendorId: vendorProfileId },
       select: { id: true },

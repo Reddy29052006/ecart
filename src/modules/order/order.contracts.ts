@@ -2,10 +2,10 @@ import type { OrderEntity, OrderListItem, OrderTimelineResponse } from './order.
 import type { PlaceOrderDto } from './order.dto';
 
 export interface IOrderRepository {
-  createOrder(data: CreateOrderData): Promise<any>;
-  findOrderById(orderId: string, customerId: string): Promise<any | null>;
-  findOrdersByCustomer(customerId: string): Promise<any[]>;
-  findOrderStatusHistory(orderId: string, customerId: string): Promise<any[]>;
+  createOrder(data: CreateOrderData): Promise<unknown>;
+  findOrderById(orderId: string, customerId: string): Promise<unknown | null>;
+  findOrdersByCustomer(customerId: string): Promise<unknown[]>;
+  findOrderStatusHistory(orderId: string, customerId: string): Promise<unknown[]>;
 }
 
 export interface IOrderService {

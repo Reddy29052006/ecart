@@ -2,7 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 import type { IOrderRepository, CreateOrderData } from './order.contracts';
 
 export class OrderRepository implements IOrderRepository {
-  constructor(private readonly db: PrismaClient) { }
+  constructor(private readonly db: PrismaClient) {}
 
   private readonly orderInclude = {
     vendorOrders: {
@@ -17,7 +17,7 @@ export class OrderRepository implements IOrderRepository {
   };
 
   // Create a complete order with all vendor sub-orders and line items in a single atomic transaction
-  async createOrder(data: CreateOrderData): Promise<any> {
+  async createOrder(data: CreateOrderData): Promise<unknown> {
     return this.db.$transaction(async (tx) => {
       // 1. Create the master order record
       const order = await tx.order.create({
@@ -127,14 +127,14 @@ export class OrderRepository implements IOrderRepository {
     });
   }
 
-  async findOrderById(orderId: string, customerId: string): Promise<any | null> {
+  async findOrderById(orderId: string, customerId: string): Promise<unknown | null> {
     return this.db.order.findFirst({
       where: { id: orderId, customerId },
       include: this.orderInclude,
     });
   }
 
-  async findOrdersByCustomer(customerId: string): Promise<any[]> {
+  async findOrdersByCustomer(customerId: string): Promise<unknown[]> {
     return this.db.order.findMany({
       where: { customerId },
       include: {
@@ -144,7 +144,7 @@ export class OrderRepository implements IOrderRepository {
     });
   }
 
-  async findOrderStatusHistory(orderId: string, customerId: string): Promise<any[]> {
+  async findOrderStatusHistory(orderId: string, customerId: string): Promise<unknown[]> {
     const order = await this.db.order.findFirst({
       where: { id: orderId, customerId },
       select: { id: true },
