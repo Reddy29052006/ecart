@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -56,12 +56,13 @@ export function ProductCard({ product }: ProductCardProps) {
           }}
         >
           {primaryImage ? (
-            <img
+            <Image
               src={primaryImage}
               alt={product.name}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+              unoptimized
               style={{
-                width: '100%',
-                height: '100%',
                 objectFit: 'cover',
                 transition: 'transform 0.3s ease',
               }}

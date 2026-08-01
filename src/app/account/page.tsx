@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Breadcrumbs } from '@/components/layout/breadcrumbs';
 import { PageTitle } from '@/components/layout/page-container';
@@ -93,7 +94,7 @@ export default function AccountOverviewPage() {
                 }}
               >
                 {profile?.profileImage ? (
-                  <img src={profile.profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <Image src={profile.profileImage} alt="Profile" fill unoptimized style={{ objectFit: 'cover' }} />
                 ) : (
                   initials || '👤'
                 )}

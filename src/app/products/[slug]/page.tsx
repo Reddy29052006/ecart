@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/lib/utils/formatting';
+import Image from 'next/image';
 import { fetchProductBySlugOrId, type ProductWithDetails } from '@/lib/api/products-api';
 
 export default function ProductDetailPage() {
@@ -120,6 +121,7 @@ export default function ProductDetailPage() {
           {/* Main Image Display */}
           <div
             style={{
+              position: 'relative',
               width: '100%',
               aspectRatio: '1/1',
               backgroundColor: 'var(--color-bg-secondary)',
@@ -133,10 +135,13 @@ export default function ProductDetailPage() {
             }}
           >
             {selectedImage ? (
-              <img
+              <Image
                 src={selectedImage}
                 alt={product.name}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                unoptimized
+                style={{ objectFit: 'cover' }}
               />
             ) : (
               <div
@@ -162,6 +167,7 @@ export default function ProductDetailPage() {
                   key={img.id}
                   onClick={() => setSelectedImage(img.url)}
                   style={{
+                    position: 'relative',
                     width: '80px',
                     height: '80px',
                     borderRadius: 'var(--radius-sm)',
@@ -175,7 +181,7 @@ export default function ProductDetailPage() {
                     backgroundColor: 'var(--color-bg-secondary)',
                   }}
                 >
-                  <img src={img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <Image src={img.url} alt={product.name} fill sizes="80px" unoptimized style={{ objectFit: 'cover' }} />
                 </button>
               ))}
             </div>
